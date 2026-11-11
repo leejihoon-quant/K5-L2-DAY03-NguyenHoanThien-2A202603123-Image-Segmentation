@@ -39,6 +39,7 @@ Số ảnh hoàn thành lấy trực tiếp từ CVAT (ảnh có ít nhất mộ
 - Ảnh, vị trí và object Medium đầu tiên tự vẽ: medium_instance, 000000458325.jpg, người đi ván trượt ở giữa ảnh, quay lưng, đứng riêng giữa đường.
 - Class và quy tắc tôi dùng để chọn biên: person; polygon 30 điểm đi theo mép ngoài của đầu, áo, hai tay, quần, giày; không lấy ván trượt; không chừa viền nền.
 - Nếu dùng gợi ý sau đó: IoU 0,84; model bám chân tốt hơn, mask tay bám khuỷu và bàn tay trái tốt hơn, hai mask ngang nhau.
+- Lưu ý về file nộp: object này được vẽ lại và Save trên CVAT sau khi `submissions/medium_instance.zip` đã được export, nên ZIP đó chưa chứa polygon vẽ tay này; thay đổi chỉ có trong task CVAT trên máy tôi.
 
 ## 3. Một lỗi tôi tìm thấy và sửa
 
@@ -46,7 +47,7 @@ Số ảnh hoàn thành lấy trực tiếp từ CVAT (ảnh có ít nhất mộ
 - Lỗi thuộc loại: biên / phủ vùng (polygon tự cắt chéo và để hở một mảng chưa gán nhãn).
 - Bằng chứng tôi nhìn thấy: khi vẽ chồng polygon lên ảnh phóng to, polygon vegetation có một đoạn tự cắt nhau (điểm 1066,394 → 1089,390 → 1064,390). Giữa mép phải của vegetation (x≈1094–1102) và mép trái của polygon building (x≈1116–1130) còn một dải bụi cây tối không thuộc nhãn nào.
 - Quy tắc và hành động sửa: vùng cây thì gán `vegetation`; polygon không được tự cắt; hai vùng kề nhau dùng chung biên, không để hở. Tôi thay polygon 3977 bằng polygon 28 điểm không còn đoạn tự cắt, có biên phải trùng với mép polygon building, rồi vẽ chồng lại để kiểm tra. Biển báo và cột để trống vì label set của task chỉ có 5 lớp (road, sidewalk, building, vegetation, sky).
-- Sau sửa đã Save và export lại chưa? Đã lưu lên CVAT. Chưa export lại ZIP: [CHƯA ĐIỀN: tự export Segmentation mask 1.1 và ghi tên file ở mục 1].
+- Sau sửa đã Save và export lại chưa? Đã Save trên CVAT; chưa export lại. `submissions/easy_semantic.zip` được export trước khi sửa polygon này nên chưa chứa thay đổi.
 
 Kết quả tự đánh giá (script cục bộ so với ground truth ba tier; **không** áp dụng cho sáu checkpoint vì không có ground truth, các trạm này ghi: chưa có điểm). Đây là số gần đúng do tôi tự tính, không phải điểm chính thức của lớp.
 | Tier | Metric  | Bản trong CVAT (đã chỉnh sửa) |
@@ -64,4 +65,3 @@ Kết quả tự đánh giá (script cục bộ so với ground truth ba tier; *
 | `medium_instance`, `000000373353.jpg`, taxi bị người đi bộ che một phần ở giữa dưới; `000000458325.jpg`, dãy xe đỗ che nhau hai bên đường | Vẽ riêng phần nhìn thấy của từng xe, hoặc vẽ cả hình xe kể cả phần bị che | Hướng dẫn polygon yêu cầu vẽ phần nhìn thấy và đánh dấu `occluded`; polygon model cũng chỉ lấy phần nhìn thấy | Giữ phần nhìn thấy. Hỏi coach: bài COCO này có cần bật `occluded` cho từng xe không |
 | `medium_instance`, `000000458325.jpg`, đám người nhỏ ở xa giữa ảnh | Gán nhãn từng người rất nhỏ, hoặc bỏ qua / gộp thành một mảng | Model đã tạo sẵn polygon cho từng người; mỗi người chỉ vài chục pixel và polygon nhiều chỗ dính nhau; tài liệu không nêu ngưỡng kích thước tối thiểu | Giữ nguyên polygon của model, không vẽ lại. Hỏi coach: có ngưỡng kích thước để bỏ qua người ở xa không |
 | `medium_instance`, `000000458325.jpg`, ván trượt dưới chân người ở giữa ảnh | Tính ván trượt là một phần của `person` (người đang đứng trên nó), hoặc loại ra vì là vật khác | Label set của task có person, bicycle, car, motorcycle, bus, truck, không có lớp ván trượt; một object chỉ nên chứa một lớp | Loại ván trượt khỏi polygon person khi vẽ lại, và không gán nhãn cho ván. Hỏi coach: ván trượt có tính là vật cần gán nhãn trong bài COCO này không |
-| `cp2_slice`, `000000017627.jpg` (khoảng x≈30, y≈232) và `cp5_occlusion`, `000000336232.jpg` (khoảng x≈477, y≈47) | Một vật hay hai vật: các polygon `car`/`truck` (cp2) và `bus`/`truck` (cp5) chồng lên cùng một vị trí, có thể là một vật bị model nhận hai lớp, hoặc hai vật thật | Hai polygon khác lớp nằm cùng chỗ thì ít khả năng là hai vật khác nhau; cần nhìn ảnh để xác nhận | [BẠN TỰ ĐIỀN SAU KHI MỞ ẢNH: giữ lớp đúng, xóa polygon thừa, hay giữ cả hai và vì sao] |
